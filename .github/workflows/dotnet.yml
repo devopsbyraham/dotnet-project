@@ -53,12 +53,10 @@ jobs:
       run: docker build -t $IMAGE_NAME:${{ github.sha }} .
 
     - name: Tag Image
-      run: docker tag $IMAGE_NAME:${{ github.sha }} $IMAGE_NAME:latest
+      run: docker tag $IMAGE_NAME:${{ github.sha }} ${{ secrets.DOCKER_USER }}/$IMAGE_NAME:latest
 
     - name: Push Docker Image
-      run: |
-        docker push $IMAGE_NAME:${{ github.sha }}
-        docker push $IMAGE_NAME:latest
+      run: docker push ${{ secrets.DOCKER_USER }}/$IMAGE_NAME:${{ github.sha }}
 
 
     

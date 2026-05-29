@@ -14,7 +14,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
 # Copy published output from build stage
-COPY --from=build /out ./
+COPY --from=build /out ./ 
 
 # Expose port 5000 instead of 8080 (Jenkins uses 8080)
 EXPOSE 5000

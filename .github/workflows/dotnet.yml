@@ -1,17 +1,17 @@
 name: .NET-PROJECT
 
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: "Deployment Environment"
-        required: true
-        default: "dev"
-        type: choice
-        options:
-          - dev
-          - uat
-          - prod
+workflow_dispatch:
+inputs:
+environment:
+description: "Deployment Environment"
+required: true
+default: "dev"
+type: choice
+options:
+- dev
+- uat
+- prod
 
 env:
 IMAGE_NAME: raham-dotnet
@@ -21,16 +21,14 @@ id-token: write
 contents: read
 
 jobs:
-
 build:
 runs-on: ubuntu-latest
 
-```
+
 outputs:
   image_tag: ${{ github.sha }}
 
 steps:
-
   - name: Checkout Code
     uses: actions/checkout@v4
 
@@ -71,21 +69,20 @@ steps:
   - name: Build Docker Image
     run: |
       docker build \
-      -t ${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
+        -t ${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
 
   - name: Push Docker Image
     run: |
       docker push \
-      ${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-```
+        ${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
 
 deploy:
 needs: build
 runs-on: ubuntu-latest
 
-```
-steps:
 
+steps:
   - name: Checkout Code
     uses: actions/checkout@v4
 
@@ -105,8 +102,7 @@ steps:
         --name ${{ secrets.EKS_CLUSTER_NAME }}
 
   - name: Verify Cluster Access
-    run: |
-      kubectl get nodes
+    run: kubectl get nodes
 
   - name: Deploy Kubernetes Resources
     run: |
@@ -127,4 +123,4 @@ steps:
       kubectl get deployments
       kubectl get pods -o wide
       kubectl get svc
-```
+

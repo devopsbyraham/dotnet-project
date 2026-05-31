@@ -42,10 +42,10 @@ jobs:
         run: dotnet test --no-build --verbosity normal
 
       - name: Install Trivy
-        uses: aquasecurity/setup-trivy@v0.2.2
+        uses: aquasecurity/setup-trivy@e07451d2e059ed86c2870430ea286b3a9e0bf241
 
       - name: Run Trivy Scan
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: rootfs
           scan-ref: .
@@ -65,6 +65,9 @@ jobs:
         run: |
           docker build \
             -t ${{ secrets.DOCKER_USER }}/$IMAGE_NAME:${{ github.sha }} .
+
+      - name: image scanning
+        run: trivy image $IMAGE_NAME:${{ github.sha }}
 
       - name: Push Docker Image
         run: |

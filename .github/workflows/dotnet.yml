@@ -1,7 +1,7 @@
 name: .NET-PROJECT
 
-on:
-workflow_dispatch:
+on: workflow_dispatch
+
 inputs:
 environment:
 description: "Deployment Environment"

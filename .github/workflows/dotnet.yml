@@ -1,12 +1,12 @@
 name: .NET-PROJECT
 
-on: workflow_dispatch
-
+on:
+workflow_dispatch:
 inputs:
 environment:
 description: "Deployment Environment"
 required: true
-default: "dev"
+default: dev
 type: choice
 options:
 - dev
@@ -23,10 +23,9 @@ contents: read
 jobs:
 
 build:
-
-```
 runs-on: ubuntu-latest
 
+```
 outputs:
   image_tag: ${{ github.sha }}
 
@@ -38,22 +37,22 @@ steps:
   - name: Setup .NET
     uses: actions/setup-dotnet@v5
     with:
-      dotnet-version: 8.0.x
+      dotnet-version: '8.0.x'
 
   - name: Restore Dependencies
     run: dotnet restore
 
   - name: Build Application
-    run: dotnet build --no-restore
+    run: dotnet build --configuration Release --no-restore
 
   - name: Run Unit Tests
     run: dotnet test --no-build --verbosity normal
 
   - name: Install Trivy
-    uses: aquasecurity/setup-trivy@e07451d2e059ed86c2870430ea286b3a9e0bf241
+    uses: aquasecurity/setup-trivy@v0.2.2
 
   - name: Run Trivy Scan
-    uses: aquasecurity/trivy-action@v0.36.0
+    uses: aquasecurity/trivy-action@0.33.1
     with:
       scan-type: rootfs
       scan-ref: .
@@ -65,6 +64,9 @@ steps:
     with:
       username: ${{ secrets.DOCKER_USER }}
       password: ${{ secrets.DOCKER_PASSWORD }}
+
+  - name: Setup Docker Buildx
+    uses: docker/setup-buildx-action@v3
 
   - name: Build Docker Image
     run: |
@@ -78,15 +80,13 @@ steps:
 ```
 
 deploy:
-
-```
 needs: build
-
 runs-on: ubuntu-latest
 
+```
 steps:
 
-  - name: Checkout
+  - name: Checkout Code
     uses: actions/checkout@v4
 
   - name: Configure AWS Credentials
@@ -98,27 +98,33 @@ steps:
   - name: Install kubectl
     uses: azure/setup-kubectl@v4
 
-  - name: Configure EKS
+  - name: Configure EKS Cluster
     run: |
       aws eks update-kubeconfig \
-      --region ${{ secrets.AWS_REGION }} \
-      --name ${{ secrets.EKS_CLUSTER_NAME }}
+        --region ${{ secrets.AWS_REGION }} \
+        --name ${{ secrets.EKS_CLUSTER_NAME }}
 
-  - name: Verify Cluster
+  - name: Verify Cluster Access
     run: |
       kubectl get nodes
 
-  - name: Deploy Application
+  - name: Deploy Kubernetes Resources
     run: |
       kubectl apply -f deployment.yaml
       kubectl apply -f service.yaml
 
+  - name: Update Deployment Image
+    run: |
+      kubectl set image deployment/dotnet-app \
+      dotnet-app=${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
   - name: Verify Rollout
     run: |
-      kubectl rollout status deployment/dotnet-app
+      kubectl rollout status deployment/dotnet-app --timeout=300s
 
   - name: Verify Resources
     run: |
-      kubectl get pods
+      kubectl get deployments
+      kubectl get pods -o wide
       kubectl get svc
 ```

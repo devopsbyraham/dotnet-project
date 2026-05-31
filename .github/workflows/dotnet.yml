@@ -45,7 +45,7 @@ jobs:
         run: dotnet test --no-build --verbosity normal
 
       - name: Install Trivy
-        uses: aquasecurity/setup-trivy@v0.2.2
+        uses: aquasecurity/setup-trivy@e07451d2e059ed86c2870430ea286b3a9e0bf241
 
       - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@v0.36.0

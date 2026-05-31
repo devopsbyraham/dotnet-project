@@ -1,17 +1,17 @@
 name: .NET-PROJECT
 
 on:
-workflow_dispatch:
-inputs:
-environment:
-description: "Deployment Environment"
-required: true
-default: dev
-type: choice
-options:
-- dev
-- uat
-- prod
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deployment Environment"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - uat
+          - prod
 
 env:
 IMAGE_NAME: raham-dotnet

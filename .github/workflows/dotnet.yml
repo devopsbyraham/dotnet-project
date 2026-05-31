@@ -3,9 +3,7 @@
 
 name: .NET-PROJECT
 
-on:
-  push:
-    branches: [ "main" ]
+on: workflow_dispatch
 
 env:
   IMAGE_NAME: raham-dotnet

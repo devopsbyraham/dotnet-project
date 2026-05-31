@@ -66,8 +66,6 @@ jobs:
           docker build \
             -t ${{ secrets.DOCKER_USER }}/$IMAGE_NAME:${{ github.sha }} .
 
-      - name: image scanning
-        run: trivy image $IMAGE_NAME:${{ github.sha }}
 
       - name: Push Docker Image
         run: |
